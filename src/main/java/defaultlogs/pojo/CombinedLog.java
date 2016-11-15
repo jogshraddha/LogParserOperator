@@ -12,10 +12,10 @@ public class CombinedLog implements Log{
 
     String host;
     String rfc931;
-    String username;
+    String userName;
     String datetime;
     String request;
-    String statuscode;
+    String statusCode;
     String bytes;
     String referrer;
     String user_agent;
@@ -37,12 +37,12 @@ public class CombinedLog implements Log{
         this.rfc931 = rfc931;
     }
 
-    public String getUsername() {
-        return username;
+    public String getUserName() {
+        return userName;
     }
 
-    public void setUsername(String username) {
-        this.username = username;
+    public void setUserName(String userName) {
+        this.userName = userName;
     }
 
     public String getDatetime() {
@@ -61,12 +61,12 @@ public class CombinedLog implements Log{
         this.request = request;
     }
 
-    public String getStatuscode() {
-        return statuscode;
+    public String getStatusCode() {
+        return statusCode;
     }
 
-    public void setStatuscode(String statuscode) {
-        this.statuscode = statuscode;
+    public void setStatusCode(String statusCode) {
+        this.statusCode = statusCode;
     }
 
     public String getBytes() {
@@ -103,20 +103,34 @@ public class CombinedLog implements Log{
 
     @Override
     public Log getPojo(String log){
-        String pattern="([(\\d\\.)]+) - (.*?) \\[(.*?)\\] \"(.*?)\" (\\d+) - \"(.*?)\" \"(.*?)\"";
+        String pattern="^([0-9.]+) ([w. -]+) (.*?) \\[(.*?)\\] \"((?:[^\"]|\")+)\" (\\d{3}) (\\d+|-) \"((?:[^\"]|\")+)\"(.*?)\"";
         Pattern compile = Pattern.compile(pattern);
         Matcher m = compile.matcher(log);
 
         if (m.find()){
             this.setHost(m.group(1));
-            this.setUsername(m.group(2));
-            this.setDatetime(m.group(3));
-            this.setRequest(m.group(4));
-            this.setStatuscode(m.group(5));
-            this.setReferrer(m.group(7));
+            this.setRfc931(m.group(2));
+            this.setUserName(m.group(3));
+            this.setDatetime(m.group(4));
+            this.setRequest(m.group(5));
+            this.setStatusCode(m.group(6));
+            this.setBytes(m.group(7));
+            this.setReferrer(m.group(8));
+            this.setUser_agent(m.group(9));
         }
         return this;
     }
 
-
+    @Override
+    public String toString(){
+        return "[ Host : " + this.getHost() +
+            " rfc931 : " + this.getRfc931() +
+            " userName : " + this.getUserName() +
+            " dateTime : " + this.getDatetime() +
+            " request : " + this.getRequest() +
+            " statusCode : " + this.getStatusCode() +
+            " bytes : " + this.getBytes() +
+            " referrer : " + this.getReferrer() +
+            " user_agent : " + this.getUser_agent() +" ]";
+    }
 }

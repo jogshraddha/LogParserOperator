@@ -33,5 +33,4 @@ public class ApplicationTest {
       Assert.fail("constraint violations: " + e.getConstraintViolations());
     }
   }
-
 }

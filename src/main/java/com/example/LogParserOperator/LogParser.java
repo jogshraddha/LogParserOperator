@@ -42,7 +42,7 @@ public class LogParser extends BaseOperator {
         public void process(String bite) {
             try {
                 Log parsedLog = log.getPojo(bite);
-                outputPort.emit(parsedLog);
+                outputPort.emit(parsedLog.toString());
             } catch (Exception e){
                 e.printStackTrace();
             }

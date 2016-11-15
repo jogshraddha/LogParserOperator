@@ -12,7 +12,7 @@ import com.datatorrent.api.DAG;
 import com.datatorrent.api.DAG.Locality;
 import com.datatorrent.lib.io.ConsoleOutputOperator;
 
-@ApplicationAnnotation(name="MyFirstApplication")
+@ApplicationAnnotation(name="LogParser")
 public class Application implements StreamingApplication
 {
 
@@ -31,7 +31,7 @@ public class Application implements StreamingApplication
 
     LineByLineFileInputOperator lineByLineFileInputOperator = dag.addOperator("lineReader", new LineByLineFileInputOperator());
 
-    lineByLineFileInputOperator.setDirectory("/tmp/test/log.txt");
+    lineByLineFileInputOperator.setDirectory("/tmp/test/combined_log.txt");
 
     LogParser parser = dag.addOperator("parser", new LogParser());
 

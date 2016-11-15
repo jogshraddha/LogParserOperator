@@ -11,6 +11,6 @@ public class DefaultLogs {
     static {
         logTypes.put("combined",new CombinedLog());
         logTypes.put("common",new CommonLog());
-        logTypes.put("common",new SysLog());
+        logTypes.put("sys",new SysLog());
     }
 }
