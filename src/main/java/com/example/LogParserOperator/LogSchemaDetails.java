@@ -18,7 +18,7 @@ public class LogSchemaDetails {
     private static final String REGEX = "regex";
 
     private List<String> fieldNames = new LinkedList<String>();
-    private List<DelimitedSchema.Field> fields = new LinkedList<DelimitedSchema.Field>();
+    private List<Field> fields = new LinkedList<Field>();
 
     public LogSchemaDetails(String json) {
 

@@ -22,7 +22,7 @@
   </property>
   <property>
     <name>dt.application.LogParser.operator.parser.prop.logFileFormat</name>
-    <value>combined</value>
+    <value>common</value>
   </property>
 </configuration>
 

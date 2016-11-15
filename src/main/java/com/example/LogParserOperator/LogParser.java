@@ -18,6 +18,8 @@ public class LogParser extends BaseOperator {
 
     final transient DefaultOutputPort<Object> outputPort= new DefaultOutputPort<>();
 
+    final transient DefaultOutputPort<Object> errorPort = new DefaultOutputPort<>();
+
     Log log;
 
     @Override
@@ -26,7 +28,7 @@ public class LogParser extends BaseOperator {
 
         if(DefaultLogs.logTypes.containsKey(logFileFormat)){
             log = DefaultLogs.logTypes.get(logFileFormat);
-        }else{
+        }else {
             //parse the schema in logformat string
             LogSchemaDetails logSchemaDetails = new LogSchemaDetails(logFileFormat);
 
@@ -42,9 +44,13 @@ public class LogParser extends BaseOperator {
         public void process(String bite) {
             try {
                 Log parsedLog = log.getPojo(bite);
-                outputPort.emit(parsedLog.toString());
-            } catch (Exception e){
-                e.printStackTrace();
+                if(log != null) {
+                    outputPort.emit(parsedLog.toString());
+                } else {
+                    throw new NullPointerException("Could not parse the log");
+                }
+            } catch (Exception e) {
+                errorPort.emit(e.getMessage());
             }
         }
     };

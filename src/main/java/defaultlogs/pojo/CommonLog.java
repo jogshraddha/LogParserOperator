@@ -1,5 +1,8 @@
 package defaultlogs.pojo;
 
+import sun.security.pkcs.ParsingException;
+
+import java.text.ParseException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -74,17 +77,21 @@ public class CommonLog implements Log {
 
 
     @Override
-    public Log getPojo(String log) {
+    public Log getPojo(String log) throws Exception {
         String pattern = "^([0-9.]+) ([w. -]+) (.*?) \\[(.*?)\\] \"((?:[^\"]|\")+)\" (\\d{3}) (\\d+|-)";
         Pattern compile = Pattern.compile(pattern);
         Matcher m = compile.matcher(log);
 
-        if (m.find()){
+        if (m.find()) {
             this.setHost(m.group(1));
-            this.setUsername(m.group(2));
-            this.setDatetime(m.group(3));
-            this.setRequest(m.group(4));
-            this.setStatusCode(m.group(5));
+            this.setRfc931(m.group(2));
+            this.setUsername(m.group(3));
+            this.setDatetime(m.group(4));
+            this.setRequest(m.group(5));
+            this.setStatusCode(m.group(6));
+            this.setBytes(m.group(7));
+        } else {
+            throw new Exception("No match found");
         }
         return this;
     }
