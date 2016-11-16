@@ -22,7 +22,8 @@
   </property>
   <property>
     <name>dt.application.LogParser.operator.parser.prop.logFileFormat</name>
-    <value>{
+    <value>common</value>
+    <!--<value>{
       "fields": [{
       "field": "host",
       "regex": "^([0-9.]+)"
@@ -37,7 +38,7 @@
       "regex": "\\[(.*?)\\]"
       }, {
       "field": "request",
-      "regex": "\"((?:[^\"]|\")+)"
+      "regex": "\"((?:[^\"]|\")+)\""
       }, {
       "field": "statusCode",
       "regex": "(\\d{3})"
@@ -45,7 +46,7 @@
       "field": "bytes",
       "regex": "(\\d+|-)"
       }]
-      }</value>
+      }</value>-->
   </property>
   <property>
     <name>dt.application.LogParser.operator.parser.port.output.attr.TUPLE_CLASS</name>

@@ -21,19 +21,14 @@ public class LogSchemaDetails {
 
     private static final Logger logger = LoggerFactory.getLogger(LogSchemaDetails.class);
 
-    private static final String FIELDS = "fields";
-
-    private static final String NAME = "name";
-    private static final String REGEX = "regex";
-
     private List<String> fieldNames = new LinkedList();
 
     public List<String> getFieldNames() {
         return fieldNames;
     }
 
-    public void setFieldNames(List<String> fieldNames) {
-        this.fieldNames = fieldNames;
+    public List<Field> getFields() {
+        return fields;
     }
 
     private List<Field> fields = new LinkedList();
@@ -45,12 +40,8 @@ public class LogSchemaDetails {
     }
 
     private void initialize(String json) throws JSONException, IOException {
-        logger.info("initializing lohSchema1...");
         JSONObject jo = new JSONObject(json);
-
         JSONArray fieldArray = jo.getJSONArray("fields");
-
-        logger.info("fields received " + fieldArray);
 
         for(int i = 0; i < fieldArray.length(); ++i) {
             JSONObject obj = fieldArray.getJSONObject(i);
@@ -92,8 +83,6 @@ public class LogSchemaDetails {
         {
             this.regex = regex;
         }
-
-
 
         @Override
         public String toString()
