@@ -1,33 +1,63 @@
 package com.example.LogParserOperator;
 
 import com.datatorrent.contrib.parser.DelimitedSchema;
+import org.codehaus.jackson.map.ObjectMapper;
+import org.codehaus.jettison.json.JSONArray;
+import org.codehaus.jettison.json.JSONException;
+import org.codehaus.jettison.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.io.IOException;
+import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Created by synerzip on 11/11/16.
  */
 public class LogSchemaDetails {
 
+    private static final Logger logger = LoggerFactory.getLogger(LogSchemaDetails.class);
+
     private static final String FIELDS = "fields";
 
     private static final String NAME = "name";
     private static final String REGEX = "regex";
 
-    private List<String> fieldNames = new LinkedList<String>();
-    private List<Field> fields = new LinkedList<Field>();
+    private List<String> fieldNames = new LinkedList();
 
-    public LogSchemaDetails(String json) {
+    public List<String> getFieldNames() {
+        return fieldNames;
+    }
 
+    public void setFieldNames(List<String> fieldNames) {
+        this.fieldNames = fieldNames;
+    }
+
+    private List<Field> fields = new LinkedList();
+
+    public LogSchemaDetails(String json) throws JSONException, IOException{
+        logger.info("initializing lohSchema...");
         initialize(json);
 
     }
 
-    private void initialize(String json) {
+    private void initialize(String json) throws JSONException, IOException {
+        logger.info("initializing lohSchema1...");
+        JSONObject jo = new JSONObject(json);
 
+        JSONArray fieldArray = jo.getJSONArray("fields");
+
+        logger.info("fields received " + fieldArray);
+
+        for(int i = 0; i < fieldArray.length(); ++i) {
+            JSONObject obj = fieldArray.getJSONObject(i);
+            Field field = new Field(obj.getString("field"), obj.getString("regex"));
+            this.fields.add(field);
+            this.fieldNames.add(field.name);
+        }
     }
 
     public class Field
@@ -37,10 +67,10 @@ public class LogSchemaDetails {
         String regex;
 
 
-        public Field(String name, String type)
+        public Field(String name, String regex)
         {
             this.name = name;
-            this.regex = String.valueOf(type.toUpperCase());
+            this.regex = regex;
         }
 
         public String getName()
@@ -71,8 +101,4 @@ public class LogSchemaDetails {
             return "Fields [name=" + name + ", regex=" + regex +"]";
         }
     }
-
-    private static final Logger logger = LoggerFactory.getLogger(LogSchemaDetails.class);
-
-
 }

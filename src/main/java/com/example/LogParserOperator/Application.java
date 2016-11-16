@@ -30,12 +30,12 @@ public class Application implements StreamingApplication
 
     ConsoleOutputOperator cons = dag.addOperator("console", new ConsoleOutputOperator());
 
-    ConsoleOutputOperator errorConsole = dag.addOperator("errorConsole", new ConsoleOutputOperator());
+    ConsoleOutputOperator error = dag.addOperator("Error", ConsoleOutputOperator.class);
 
-    dag.addStream("log", lineByLineFileInputOperator.output, parser.inputPort).setLocality(Locality.CONTAINER_LOCAL);
+    dag.addStream("log", lineByLineFileInputOperator.output, parser.input).setLocality(Locality.CONTAINER_LOCAL);
 
-    dag.addStream("parser", parser.outputPort, cons.input).setLocality(Locality.CONTAINER_LOCAL);
+    dag.addStream("parser", parser.output, cons.input).setLocality(Locality.CONTAINER_LOCAL);
 
-    dag.addStream("error", parser.errorPort, errorConsole.input).setLocality(Locality.CONTAINER_LOCAL);
+    dag.addStream("error", parser.errorPort, error.input).setLocality(Locality.CONTAINER_LOCAL);
   }
 }

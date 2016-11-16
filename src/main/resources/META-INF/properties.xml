@@ -22,7 +22,33 @@
   </property>
   <property>
     <name>dt.application.LogParser.operator.parser.prop.logFileFormat</name>
-    <value>common</value>
+    <value>{
+      "fields": [{
+      "field": "host",
+      "regex": "^([0-9.]+)"
+      }, {
+      "field": "rfc931",
+      "regex": "([w. -]+)"
+      }, {
+      "field": "userName",
+      "regex": "(.*?)"
+      }, {
+      "field": "datetime",
+      "regex": "\\[(.*?)\\]"
+      }, {
+      "field": "request",
+      "regex": "\"((?:[^\"]|\")+)"
+      }, {
+      "field": "statusCode",
+      "regex": "(\\d{3})"
+      }, {
+      "field": "bytes",
+      "regex": "(\\d+|-)"
+      }]
+      }</value>
+  </property>
+  <property>
+    <name>dt.application.LogParser.operator.parser.port.output.attr.TUPLE_CLASS</name>
+    <value>com.example.LogParserOperator.schema.LogSchema</value>
   </property>
 </configuration>
-
