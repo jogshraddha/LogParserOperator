@@ -7,8 +7,8 @@ import java.util.regex.Pattern;
  * Created by synerzip on 10/11/16.
  */
 public class CombinedLog implements Log{
-    String logFormatExample="172.16.0.3 - frank [25/Sep/2002:14:04:19 +0200] \"GET / HTTP/1.1\" 401 - \"\" \"Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020827\"";
-    String pattern="([(\\d\\.)]+) - (.*?) \\[(.*?)\\] \"(.*?)\" (\\d+) - \"(.*?)\" \"(.*?)\"";
+//    String logFormatExample="172.16.0.3 - frank [25/Sep/2002:14:04:19 +0200] \"GET / HTTP/1.1\" 401 - \"\" \"Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020827\"";
+//    String pattern="([(\\d\\.)]+) - (.*?) \\[(.*?)\\] \"(.*?)\" (\\d+) - \"(.*?)\" \"(.*?)\"";
 
     String host;
     String rfc931;
@@ -107,7 +107,7 @@ public class CombinedLog implements Log{
         Pattern compile = Pattern.compile(pattern);
         Matcher m = compile.matcher(log);
 
-        if (m.find()){
+        if (m.find()) {
             this.setHost(m.group(1));
             this.setRfc931(m.group(2));
             this.setUserName(m.group(3));
@@ -123,14 +123,14 @@ public class CombinedLog implements Log{
 
     @Override
     public String toString(){
-        return "[ Host : " + this.getHost() +
-            " rfc931 : " + this.getRfc931() +
-            " userName : " + this.getUserName() +
-            " dateTime : " + this.getDatetime() +
-            " request : " + this.getRequest() +
-            " statusCode : " + this.getStatusCode() +
-            " bytes : " + this.getBytes() +
-            " referrer : " + this.getReferrer() +
-            " user_agent : " + this.getUser_agent() +" ]";
+        return "CombinedLog [ Host : " + this.getHost() +
+            ", rfc931 : " + this.getRfc931() +
+            ", userName : " + this.getUserName() +
+            ", dateTime : " + this.getDatetime() +
+            ", request : " + this.getRequest() +
+            ", statusCode : " + this.getStatusCode() +
+            ", bytes : " + this.getBytes() +
+            ", referrer : " + this.getReferrer() +
+            ", user_agent : " + this.getUser_agent() +" ]";
     }
 }

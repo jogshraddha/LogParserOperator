@@ -1,7 +1,5 @@
 package com.example.LogParserOperator;
 
-import com.datatorrent.contrib.parser.DelimitedSchema;
-import org.codehaus.jackson.map.ObjectMapper;
 import org.codehaus.jettison.json.JSONArray;
 import org.codehaus.jettison.json.JSONException;
 import org.codehaus.jettison.json.JSONObject;
@@ -9,37 +7,37 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.io.IOException;
-import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
-import java.util.Map;
 
-/**
- * Created by synerzip on 11/11/16.
- */
 public class LogSchemaDetails {
 
-    private static final Logger logger = LoggerFactory.getLogger(LogSchemaDetails.class);
-
+    /**
+     * This holds the list of field names in the same order as in the schema
+     */
     private List<String> fieldNames = new LinkedList();
-
-    public List<String> getFieldNames() {
-        return fieldNames;
-    }
-
-    public List<Field> getFields() {
-        return fields;
-    }
 
     private List<Field> fields = new LinkedList();
 
-    public LogSchemaDetails(String json) throws JSONException, IOException{
-        logger.info("initializing lohSchema...");
-        initialize(json);
-
+    public LogSchemaDetails(String json) throws JSONException, IOException
+    {
+        try {
+            initialize(json);
+        } catch (JSONException | IOException e) {
+            logger.error("{}", e);
+            throw new IllegalArgumentException(e);
+        }
     }
 
-    private void initialize(String json) throws JSONException, IOException {
+    /**
+     * For a given json string, this method sets the field members
+     *
+     * @param json
+     * @throws JSONException
+     * @throws IOException
+     */
+    private void initialize(String json) throws JSONException, IOException
+    {
         JSONObject jo = new JSONObject(json);
         JSONArray fieldArray = jo.getJSONArray("fields");
 
@@ -51,10 +49,35 @@ public class LogSchemaDetails {
         }
     }
 
+    /**
+     * Get the list of fieldNames mentioned in schema
+     *
+     * @return fieldNames
+     */
+    public List<String> getFieldNames()
+    {
+        return fieldNames;
+    }
+
+    /**
+     * Get the list of fields (field, regex) mentioned in schema
+     *
+     * @return fields
+     */
+    public List<Field> getFields()
+    {
+        return fields;
+    }
+
     public class Field
     {
-
+        /**
+         * name of the field
+         */
         String name;
+        /**
+         * regular expression for the field
+         */
         String regex;
 
 
@@ -64,21 +87,41 @@ public class LogSchemaDetails {
             this.regex = regex;
         }
 
+        /**
+         * Get the name of the field
+         *
+         * @return name
+         */
         public String getName()
         {
             return name;
         }
 
+        /**
+         * Set the name of the field
+         *
+         * @param name
+         */
         public void setName(String name)
         {
             this.name = name;
         }
 
+        /**
+         * Get the regular expression of the field
+         *
+         * @return
+         */
         public String getRegex()
         {
             return regex;
         }
 
+        /**
+         * Set the regular expression of the field
+         *
+         * @param regex
+         */
         public void setRegex(String regex)
         {
             this.regex = regex;
@@ -90,4 +133,6 @@ public class LogSchemaDetails {
             return "Fields [name=" + name + ", regex=" + regex +"]";
         }
     }
+
+    private static final Logger logger = LoggerFactory.getLogger(LogSchemaDetails.class);
 }

@@ -19,8 +19,6 @@ public class Application implements StreamingApplication
   @Override
   public void populateDAG(DAG dag, Configuration conf)
   {
-    // Sample DAG with 2 operators
-    // Replace this code with the DAG you want to build
 
     LineByLineFileInputOperator lineByLineFileInputOperator = dag.addOperator("lineReader", new LineByLineFileInputOperator());
 
@@ -28,14 +26,14 @@ public class Application implements StreamingApplication
 
     LogParser parser = dag.addOperator("parser", new LogParser());
 
-    ConsoleOutputOperator cons = dag.addOperator("console", new ConsoleOutputOperator());
+    ConsoleOutputOperator cons = dag.addOperator("parsedLog", new ConsoleOutputOperator());
 
     ConsoleOutputOperator error = dag.addOperator("Error", ConsoleOutputOperator.class);
 
-    dag.addStream("log", lineByLineFileInputOperator.output, parser.input).setLocality(Locality.CONTAINER_LOCAL);
+    dag.addStream("log", lineByLineFileInputOperator.output, parser.input);
 
-    dag.addStream("parser", parser.output, cons.input).setLocality(Locality.CONTAINER_LOCAL);
+    dag.addStream("parser", parser.output, cons.input);
 
-    dag.addStream("error", parser.errorPort, error.input).setLocality(Locality.CONTAINER_LOCAL);
+    dag.addStream("error", parser.errorPort, error.input);
   }
 }

@@ -13,10 +13,6 @@
   </property>
   -->
   <property>
-    <name>dt.application.LogParser.operator.randomGenerator.prop.numTuples</name>
-    <value>1000</value>
-  </property>
-  <property>
     <name>dt.application.LogParser.operator.console.prop.stringFormat</name>
     <value>%s</value>
   </property>

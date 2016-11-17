@@ -98,13 +98,13 @@ public class CommonLog implements Log {
 
     @Override
     public String toString() {
-        return "[ Host : " + this.getHost() +
-            " rfc931 : " + this.getRfc931() +
-            " userName : " + this.getUsername() +
-            " dateTime : " + this.getDatetime() +
-            " request : " + this.getRequest() +
-            " statusCode : " + this.getStatusCode() +
-            " bytes : " + this.getBytes() + " ]";
+        return "CommonLog [ Host : " + this.getHost() +
+            ", rfc931 : " + this.getRfc931() +
+            ", userName : " + this.getUsername() +
+            ", dateTime : " + this.getDatetime() +
+            ", request : " + this.getRequest() +
+            ", statusCode : " + this.getStatusCode() +
+            ", bytes : " + this.getBytes() + " ]";
     }
 }
 

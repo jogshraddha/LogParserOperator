@@ -14,12 +14,8 @@ import org.slf4j.LoggerFactory;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * Created by synerzip on 14/11/16.
- */
-public class LogParser extends BaseOperator {
-
-    private static final Logger logger = LoggerFactory.getLogger(LogParser.class);
+public class LogParser extends BaseOperator
+{
 
     private transient Class<?> clazz;
 
@@ -29,27 +25,30 @@ public class LogParser extends BaseOperator {
 
     long parsedObjectCount;
 
-    public final transient DefaultOutputPort<Object> output = new DefaultOutputPort() {
-        @Override
-        public void setup(Context.PortContext context) {
-            LogParser.this.setClazz(context.getAttributes().get(Context.PortContext.TUPLE_CLASS));
-        }
-    };
-
-    public final transient DefaultOutputPort<Object> errorPort = new DefaultOutputPort<>();
-
     private LogSchemaDetails logSchemaDetails;
 
     Log log;
 
-    public void beginWindow(long windowId) {
+    public final transient DefaultOutputPort<Object> errorPort = new DefaultOutputPort<>();
+
+    public final transient DefaultOutputPort<Object> output = new DefaultOutputPort()
+    {
+        @Override
+        public void setup(Context.PortContext context) {
+            clazz = context.getAttributes().get(Context.PortContext.TUPLE_CLASS);
+        }
+    };
+
+    public void beginWindow(long windowId)
+    {
         this.errorTupleCount = 0L;
         this.parsedObjectCount = 0L;
     }
 
     @Override
-    public void setup(Context.OperatorContext context) {
-        //define log regex and pojo class
+    public void setup(Context.OperatorContext context)
+    {
+        //define logFileFormat and pojo class
         logger.info("Received logFileFormat as : " + logFileFormat);
         if(DefaultLogs.logTypes.containsKey(logFileFormat)) {
             logger.info("Parsing logs from default log formats");
@@ -64,9 +63,9 @@ public class LogParser extends BaseOperator {
             }
         }
     }
-    // Now create matcher object.
 
-    public final transient DefaultInputPort<String> input = new DefaultInputPort<String>() {
+    public final transient DefaultInputPort<String> input = new DefaultInputPort<String>()
+    {
         @Override
         public void process(String bite) {
             try {
@@ -74,10 +73,10 @@ public class LogParser extends BaseOperator {
                     logger.info("Parsing with CUSTOM log format has been started");
                     String pattern = createPattern();
                     ObjectMapper objMapper = new ObjectMapper();
-                    output.emit(objMapper.readValue(createJsonFromLog(bite, pattern).toString().getBytes(), LogParser.this.getClazz()));
+                    output.emit(objMapper.readValue(createJsonFromLog(bite, pattern).toString().getBytes(), clazz));
                     parsedObjectCount++;
                 } else {
-                    logger.info("Parsing with DEFAULT log format has been started");
+                    logger.info("Parsing with DEFAULT log format " + logFileFormat);
                     Log parsedLog = log.getPojo(bite);
                     if(log != null) {
                         output.emit(parsedLog.toString());
@@ -94,49 +93,68 @@ public class LogParser extends BaseOperator {
         }
     };
 
-    public String createPattern() {
+    /**
+     * Combines the given regex and forms a pattern string for parsing the logs
+     * @return pattern
+     */
+    public String createPattern()
+    {
         String pattern = "";
-        for(LogSchemaDetails.Field field: logSchemaDetails.getFields()){
+        for(LogSchemaDetails.Field field: logSchemaDetails.getFields()) {
             pattern = pattern + field.getRegex() + " ";
         }
         return pattern.trim();
     }
 
-    public JSONObject createJsonFromLog(String log, String pattern) throws Exception {
+    /**
+     * Creates json object by parsing the log with custom logFileFormat
+     * @param log
+     * @param pattern
+     * @return logObject
+     * @throws Exception
+     */
+    public JSONObject createJsonFromLog(String log, String pattern) throws Exception
+    {
         Pattern compile = Pattern.compile(pattern);
         Matcher m = compile.matcher(log);
         int count = m.groupCount();
         int i = 1;
-        JSONObject jsonObject = new JSONObject();
-        if (m.find()) {
-            for(String field: logSchemaDetails.getFieldNames()){
-                if(i == count){
+        JSONObject logObject = new JSONObject();
+        if(m.find()) {
+            for(String field: logSchemaDetails.getFieldNames()) {
+                if(i == count) {
                     break;
                 }
-                jsonObject.put(field, m.group(i));
+                logObject.put(field, m.group(i));
                 i++;
             }
         } else {
-            throw new Exception("No match found");
+            throw new Exception("No match found for log : " + log);
         }
-        return jsonObject;
+        return logObject;
     }
 
-    public void setLogFileFormat(String logFileFormat) {
+    public void setLogFileFormat(String logFileFormat)
+    {
         this.logFileFormat = logFileFormat;
 
     }
 
-    public String geLogFileFormat() {
+    public String geLogFileFormat()
+    {
         return logFileFormat;
     }
 
-    public Class<?> getClazz() {
+    public Class<?> getClazz()
+    {
         return this.clazz;
     }
 
-    public void setClazz(Class<?> clazz) {
+    public void setClazz(Class<?> clazz)
+    {
         this.clazz = clazz;
     }
+
+    private static final Logger logger = LoggerFactory.getLogger(LogParser.class);
 }
 
