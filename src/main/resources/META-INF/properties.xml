@@ -45,7 +45,12 @@
       }</value>-->
   </property>
   <property>
-    <name>dt.application.LogParser.operator.parser.port.output.attr.TUPLE_CLASS</name>
+    <name>dt.application.LogParser.operator.parser.port.out.attr.TUPLE_CLASS</name>
     <value>com.example.LogParserOperator.schema.LogSchema</value>
+  </property>
+  <property>
+    <name>dt.application.LogParser.operator.LogGenerator.prop.sleepTime
+    </name>
+    <value>100</value>
   </property>
 </configuration>

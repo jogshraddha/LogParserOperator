@@ -1,14 +1,8 @@
 package defaultlogs.pojo;
 
-import sun.security.pkcs.ParsingException;
-
-import java.text.ParseException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * Created by synerzip on 10/11/16.
- */
 public class CommonLog implements Log {
 
     private String host;

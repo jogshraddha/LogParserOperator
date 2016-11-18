@@ -1,53 +1,65 @@
 package com.example.LogParserOperator;
 
+import com.datatorrent.api.AutoMetric;
 import com.datatorrent.api.Context;
-import com.datatorrent.api.DefaultInputPort;
 import com.datatorrent.api.DefaultOutputPort;
-import com.datatorrent.common.util.BaseOperator;
+import com.datatorrent.lib.parser.Parser;
+import com.datatorrent.lib.util.KeyValPair;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import defaultlogs.pojo.DefaultLogs;
 import defaultlogs.pojo.Log;
 import org.codehaus.jettison.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-public class LogParser extends BaseOperator
+public class LogParser extends Parser<byte[], KeyValPair<String, String>>
 {
 
-    private transient Class<?> clazz;
-
     private String logFileFormat;
-
-    long errorTupleCount;
-
-    long parsedObjectCount;
 
     private LogSchemaDetails logSchemaDetails;
 
     Log log;
 
-    public final transient DefaultOutputPort<Object> errorPort = new DefaultOutputPort<>();
+    private transient ObjectMapper objMapper;
 
-    public final transient DefaultOutputPort<Object> output = new DefaultOutputPort()
+    @Override
+    public Object convert(byte[] tuple)
     {
-        @Override
-        public void setup(Context.PortContext context) {
-            clazz = context.getAttributes().get(Context.PortContext.TUPLE_CLASS);
-        }
-    };
+        throw new UnsupportedOperationException("Not supported");
+    }
 
+    @Override
+    public KeyValPair<String, String> processErrorTuple(byte[] bytes)
+    {
+        return null;
+    }
+
+    /**
+     * output port to emit validate records as JSONObject
+     */
+    public transient DefaultOutputPort<Object> parsedOutput = new DefaultOutputPort<Object>();
+
+    /**
+     * metric to keep count of number of tuples emitted on {@link #parsedOutput}
+     * port
+     */
+    @AutoMetric
+    long parsedOutputCount;
+
+    @Override
     public void beginWindow(long windowId)
     {
-        this.errorTupleCount = 0L;
-        this.parsedObjectCount = 0L;
+        super.beginWindow(windowId);
+        parsedOutputCount = 0;
     }
 
     @Override
     public void setup(Context.OperatorContext context)
     {
+        objMapper = new ObjectMapper();
         //define logFileFormat and pojo class
         logger.info("Received logFileFormat as : " + logFileFormat);
         if(DefaultLogs.logTypes.containsKey(logFileFormat)) {
@@ -64,39 +76,48 @@ public class LogParser extends BaseOperator
         }
     }
 
-    public final transient DefaultInputPort<String> input = new DefaultInputPort<String>()
+    @Override
+    public void processTuple(byte[] inputTuple)
     {
-        @Override
-        public void process(String bite) {
-            try {
-                if(logSchemaDetails != null) {
-                    logger.info("Parsing with CUSTOM log format has been started");
-                    String pattern = createPattern();
-                    ObjectMapper objMapper = new ObjectMapper();
-                    output.emit(objMapper.readValue(createJsonFromLog(bite, pattern).toString().getBytes(), clazz));
-                    parsedObjectCount++;
-                } else {
-                    logger.info("Parsing with DEFAULT log format " + logFileFormat);
-                    Log parsedLog = log.getPojo(bite);
-                    if(log != null) {
-                        output.emit(parsedLog.toString());
-                        parsedObjectCount++;
-                    } else {
-                        throw new NullPointerException("Could not parse the log");
-                    }
+        if (inputTuple == null) {
+            if (err.isConnected()) {
+                err.emit(new KeyValPair<String, String>(null, "null tuple"));
+            }
+            errorTupleCount++;
+            return;
+        }
+
+        String incomingString = new String(inputTuple);
+        logger.info("Input string {} ", incomingString);
+
+        try {
+            if(logSchemaDetails != null) {
+                logger.info("Parsing with CUSTOM log format has been started");
+                String pattern = createPattern();
+                if (parsedOutput.isConnected()) {
+                    parsedOutput.emit(objMapper.readValue(createJsonFromLog(incomingString, pattern).toString().getBytes(), clazz));
+                    parsedOutputCount++;
                 }
-            } catch (Exception e) {
-                logger.error("Error while parsing the logs " + e.getMessage());
-                errorPort.emit(e.getMessage());
-                errorTupleCount++;
+            } else {
+                logger.info("Parsing with DEFAULT log format " + logFileFormat);
+                Log parsedLog = log.getPojo(incomingString);
+                if(parsedLog != null) {
+                    logger.info("Emitting parsed object ");
+                    parsedOutput.emit(parsedLog.toString());
+                    parsedOutputCount++;
+                } else {
+                    throw new NullPointerException("Could not parse the log");
+                }
+            }
+        } catch (Exception e) {
+            logger.error("Error while parsing the logs " + e.getMessage());
+            errorTupleCount++;
+            if (err.isConnected()) {
+                err.emit(new KeyValPair<String, String>(incomingString, e.getMessage()));
             }
         }
-    };
+    }
 
-    /**
-     * Combines the given regex and forms a pattern string for parsing the logs
-     * @return pattern
-     */
     public String createPattern()
     {
         String pattern = "";
@@ -106,13 +127,6 @@ public class LogParser extends BaseOperator
         return pattern.trim();
     }
 
-    /**
-     * Creates json object by parsing the log with custom logFileFormat
-     * @param log
-     * @param pattern
-     * @return logObject
-     * @throws Exception
-     */
     public JSONObject createJsonFromLog(String log, String pattern) throws Exception
     {
         Pattern compile = Pattern.compile(pattern);
@@ -143,16 +157,6 @@ public class LogParser extends BaseOperator
     public String geLogFileFormat()
     {
         return logFileFormat;
-    }
-
-    public Class<?> getClazz()
-    {
-        return this.clazz;
-    }
-
-    public void setClazz(Class<?> clazz)
-    {
-        this.clazz = clazz;
     }
 
     private static final Logger logger = LoggerFactory.getLogger(LogParser.class);
