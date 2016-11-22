@@ -17,6 +17,8 @@ import java.util.regex.Pattern;
 public class LogParser extends Parser<byte[], KeyValPair<String, String>>
 {
 
+    protected transient Class<?> clazz;
+
     private String logFileFormat;
 
     private LogSchemaDetails logSchemaDetails;
@@ -40,7 +42,13 @@ public class LogParser extends Parser<byte[], KeyValPair<String, String>>
     /**
      * output port to emit validate records as JSONObject
      */
-    public transient DefaultOutputPort<Object> parsedOutput = new DefaultOutputPort<Object>();
+    public transient DefaultOutputPort<Object> parsedOutput = new DefaultOutputPort<Object>()
+    {
+        public void setup(Context.PortContext context)
+        {
+            clazz = context.getValue(Context.PortContext.TUPLE_CLASS);
+        }
+    };
 
     /**
      * metric to keep count of number of tuples emitted on {@link #parsedOutput}
@@ -60,16 +68,17 @@ public class LogParser extends Parser<byte[], KeyValPair<String, String>>
     public void setup(Context.OperatorContext context)
     {
         objMapper = new ObjectMapper();
+        String logFormat = this.geLogFileFormat();
         //define logFileFormat and pojo class
-        logger.info("Received logFileFormat as : " + logFileFormat);
-        if(DefaultLogs.logTypes.containsKey(logFileFormat)) {
+        logger.info("Received logFileFormat as : " + logFormat);
+        if(DefaultLogs.logTypes.containsKey(logFormat)) {
             logger.info("Parsing logs from default log formats");
-            log = DefaultLogs.logTypes.get(logFileFormat);
+            log = DefaultLogs.logTypes.get(logFormat);
         } else {
             logger.info("Parsing logs from custom log formats");
             try {
                 //parse the schema in logFileFormat string
-                logSchemaDetails = new LogSchemaDetails(logFileFormat);
+                this.logSchemaDetails = new LogSchemaDetails(logFormat);
             } catch (Exception e) {
                 logger.error("Error while initializing the custom format " + e.getMessage());
             }
@@ -91,19 +100,22 @@ public class LogParser extends Parser<byte[], KeyValPair<String, String>>
         logger.info("Input string {} ", incomingString);
 
         try {
-            if(logSchemaDetails != null) {
-                logger.info("Parsing with CUSTOM log format has been started");
+            if(this.logSchemaDetails != null) {
+                logger.info("Parsing with CUSTOM log format has been started {}", this.geLogFileFormat());
                 String pattern = createPattern();
                 if (parsedOutput.isConnected()) {
+                    System.out.println("*************************");
+                    System.out.println(clazz);
                     parsedOutput.emit(objMapper.readValue(createJsonFromLog(incomingString, pattern).toString().getBytes(), clazz));
+                    logger.info("emitting obj");
                     parsedOutputCount++;
                 }
             } else {
-                logger.info("Parsing with DEFAULT log format " + logFileFormat);
+                logger.info("Parsing with DEFAULT log format " + this.geLogFileFormat());
                 Log parsedLog = log.getPojo(incomingString);
                 if(parsedLog != null) {
+                    parsedOutput.emit(parsedLog);
                     logger.info("Emitting parsed object ");
-                    parsedOutput.emit(parsedLog.toString());
                     parsedOutputCount++;
                 } else {
                     throw new NullPointerException("Could not parse the log");
@@ -121,9 +133,10 @@ public class LogParser extends Parser<byte[], KeyValPair<String, String>>
     public String createPattern()
     {
         String pattern = "";
-        for(LogSchemaDetails.Field field: logSchemaDetails.getFields()) {
+        for(LogSchemaDetails.Field field: this.logSchemaDetails.getFields()) {
             pattern = pattern + field.getRegex() + " ";
         }
+        logger.info("Created pattern for parsing the log {}", pattern.trim());
         return pattern.trim();
     }
 
@@ -135,7 +148,7 @@ public class LogParser extends Parser<byte[], KeyValPair<String, String>>
         int i = 1;
         JSONObject logObject = new JSONObject();
         if(m.find()) {
-            for(String field: logSchemaDetails.getFieldNames()) {
+            for(String field: this.logSchemaDetails.getFieldNames()) {
                 if(i == count) {
                     break;
                 }
@@ -145,6 +158,7 @@ public class LogParser extends Parser<byte[], KeyValPair<String, String>>
         } else {
             throw new Exception("No match found for log : " + log);
         }
+        logger.info("Json created {}", logObject);
         return logObject;
     }
 
@@ -157,6 +171,34 @@ public class LogParser extends Parser<byte[], KeyValPair<String, String>>
     public String geLogFileFormat()
     {
         return logFileFormat;
+    }
+
+    public LogSchemaDetails getLogSchemaDetails() {
+        return logSchemaDetails;
+    }
+
+    public void setLogSchemaDetails(LogSchemaDetails logSchemaDetails) {
+        this.logSchemaDetails = logSchemaDetails;
+    }
+
+    /**
+     * Get the class that needs to be formatted
+     *
+     * @return Class<?>
+     */
+    public Class<?> getClazz()
+    {
+        return clazz;
+    }
+
+    /**
+     * Set the class of tuple that needs to be formatted
+     *
+     * @param clazz
+     */
+    public void setClazz(Class<?> clazz)
+    {
+        this.clazz = clazz;
     }
 
     private static final Logger logger = LoggerFactory.getLogger(LogParser.class);
