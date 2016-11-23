@@ -18,7 +18,7 @@
   </property>
   <property>
     <name>dt.application.LogParser.operator.parser.prop.logFileFormat</name>
-    <value>common</value>
+    <value>extended</value>
     <!--<value>{
       "fields": [{
       "field": "host",
@@ -47,6 +47,10 @@
   <property>
     <name>dt.application.LogParser.operator.parser.port.out.attr.TUPLE_CLASS</name>
     <value>com.example.LogParserOperator.schema.LogSchema</value>
+  </property>
+  <property>
+    <name>dt.application.LogParser.operator.parser.prop.extendedFieldsSeq</name>
+    <value>date time c-ip s-ip s-port sc-status sc-substatus sc-win32-status sc-bytes cs-bytes</value>
   </property>
   <property>
     <name>dt.application.LogParser.operator.LogGenerator.prop.sleepTime

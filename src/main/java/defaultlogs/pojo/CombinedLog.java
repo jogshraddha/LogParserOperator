@@ -1,25 +1,71 @@
+/**
+ * Licensed to the Apache Software Foundation (ASF) under one
+ * or more contributor license agreements.  See the NOTICE file
+ * distributed with this work for additional information
+ * regarding copyright ownership.  The ASF licenses this file
+ * to you under the Apache License, Version 2.0 (the
+ * "License"); you may not use this file except in compliance
+ * with the License.  You may obtain a copy of the License at
+ *
+ *   http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing,
+ * software distributed under the License is distributed on an
+ * "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+ * KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations
+ * under the License.
+ */
 package defaultlogs.pojo;
 
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-/**
- * Created by synerzip on 10/11/16.
- */
-public class CombinedLog implements Log{
-//    String logFormatExample="172.16.0.3 - frank [25/Sep/2002:14:04:19 +0200] \"GET / HTTP/1.1\" 401 - \"\" \"Mozilla/5.0 (X11; U; Linux i686; en-US; rv:1.1) Gecko/20020827\"";
-//    String pattern="([(\\d\\.)]+) - (.*?) \\[(.*?)\\] \"(.*?)\" (\\d+) - \"(.*?)\" \"(.*?)\"";
+public class CombinedLog implements Log {
 
-    String host;
-    String rfc931;
-    String userName;
-    String datetime;
-    String request;
-    String statusCode;
-    String bytes;
-    String referrer;
-    String user_agent;
-    String cookie;
+    private String host;
+    private String rfc931;
+    private String userName;
+    private String datetime;
+    private String request;
+    private String statusCode;
+    private String bytes;
+    private String referrer;
+    private String user_agent;
+    private String cookie;
+
+    @Override
+    public Log getLog(String log){
+        String pattern="^([0-9.]+) ([w. -]+) (.*?) \\[(.*?)\\] \"((?:[^\"]|\")+)\" (\\d{3}) (\\d+|-) \"((?:[^\"]|\")+)\"(.*?)\"";
+        Pattern compile = Pattern.compile(pattern);
+        Matcher m = compile.matcher(log);
+
+        if (m.find()) {
+            this.setHost(m.group(1));
+            this.setRfc931(m.group(2));
+            this.setUserName(m.group(3));
+            this.setDatetime(m.group(4));
+            this.setRequest(m.group(5));
+            this.setStatusCode(m.group(6));
+            this.setBytes(m.group(7));
+            this.setReferrer(m.group(8));
+            this.setUser_agent(m.group(9));
+        }
+        return this;
+    }
+
+    @Override
+    public String toString(){
+        return "CombinedLog [ Host : " + this.getHost() +
+          ", rfc931 : " + this.getRfc931() +
+          ", userName : " + this.getUserName() +
+          ", dateTime : " + this.getDatetime() +
+          ", request : " + this.getRequest() +
+          ", statusCode : " + this.getStatusCode() +
+          ", bytes : " + this.getBytes() +
+          ", referrer : " + this.getReferrer() +
+          ", user_agent : " + this.getUser_agent() +" ]";
+    }
 
     public String getHost() {
         return host;
@@ -99,38 +145,5 @@ public class CombinedLog implements Log{
 
     public void setCookie(String cookie) {
         this.cookie = cookie;
-    }
-
-    @Override
-    public Log getPojo(String log){
-        String pattern="^([0-9.]+) ([w. -]+) (.*?) \\[(.*?)\\] \"((?:[^\"]|\")+)\" (\\d{3}) (\\d+|-) \"((?:[^\"]|\")+)\"(.*?)\"";
-        Pattern compile = Pattern.compile(pattern);
-        Matcher m = compile.matcher(log);
-
-        if (m.find()) {
-            this.setHost(m.group(1));
-            this.setRfc931(m.group(2));
-            this.setUserName(m.group(3));
-            this.setDatetime(m.group(4));
-            this.setRequest(m.group(5));
-            this.setStatusCode(m.group(6));
-            this.setBytes(m.group(7));
-            this.setReferrer(m.group(8));
-            this.setUser_agent(m.group(9));
-        }
-        return this;
-    }
-
-    @Override
-    public String toString(){
-        return "CombinedLog [ Host : " + this.getHost() +
-            ", rfc931 : " + this.getRfc931() +
-            ", userName : " + this.getUserName() +
-            ", dateTime : " + this.getDatetime() +
-            ", request : " + this.getRequest() +
-            ", statusCode : " + this.getStatusCode() +
-            ", bytes : " + this.getBytes() +
-            ", referrer : " + this.getReferrer() +
-            ", user_agent : " + this.getUser_agent() +" ]";
     }
 }
