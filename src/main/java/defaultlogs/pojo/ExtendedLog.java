@@ -58,7 +58,7 @@ public class ExtendedLog implements Log
     fieldRegex.put("date", "(\\d{4}-\\d{2}-\\d{2})");
     fieldRegex.put("time", "(\\d{1,2}:\\d{1,2})");
     fieldRegex.put("c-ip", "([0-9.]+)");
-    fieldRegex.put("cs-username", "(.*?)");
+    fieldRegex.put("cs-username", "([w. -]+)");
     fieldRegex.put("s-sitename", "");
     fieldRegex.put("s-computername", "");
     fieldRegex.put("s-ip", "([0-9.]+)");

@@ -28,7 +28,7 @@
       "regex": "([w. -]+)"
       }, {
       "field": "userName",
-      "regex": "(.*?)"
+      "regex": "([w. -]+)"
       }, {
       "field": "datetime",
       "regex": "\\[(.*?)\\]"

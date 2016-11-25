@@ -26,13 +26,13 @@ public class LogGenerator extends BaseOperator implements InputOperator
 
   public final transient DefaultOutputPort<byte[]> out = new DefaultOutputPort<byte[]>();
 
-//  public static String[] host = {"127.0.0.1", "127.0.0.2", "127.0.0.3", "127.0.0.4"};
-//  public static String rfc931 = "-";
-//  public static String[] username = {"John", "Peter", "Ron", "Kelvin"};
-//  public static String[] datetime = {"10/Oct/1999:21:15:05 +0500", "22/Jan/2013:11:11:11 +0500", "04/Oct/2015:13:04:05 +0500", "31/Dec/2011:12:14:15 +0500"};
-//  public static String request = "GET /index.html HTTP/1.0";
-//  public static String[] statusCode = {"200", "400", "500", "404"};
-//  public static String[] bytes = {"2326", "4050", "4336", "5050"};
+  public static String[] host = {"127.0.0.1", "127.0.0.2", "127.0.0.3", "127.0.0.4"};
+  public static String rfc931 = "-";
+  public static String[] username = {"John", "Peter", "Ron", "Kelvin"};
+  public static String[] datetime = {"10/Oct/1999:21:15:05 +0500", "22/Jan/2013:11:11:11 +0500", "04/Oct/2015:13:04:05 +0500", "31/Dec/2011:12:14:15 +0500"};
+  public static String request = "GET /index.html HTTP/1.0";
+  public static String[] statusCode = {"200", "400", "500", "404"};
+  public static String[] bytes = {"2326", "4050", "4336", "5050"};
 
   private int sleepTime;
 
@@ -42,22 +42,22 @@ public class LogGenerator extends BaseOperator implements InputOperator
     count = 0;
   }
 
-  private static String getNext()
+  private static String getNext(int num)
   {
 
     StringBuilder logString  = new StringBuilder();
     try {
       //Extended log
-      logString.append("2014-06-03 05:14 10.0.1.3 127.0.0.3 80 200 304 0 344 433");
+//      logString.append("2014-06-03 05:14 10.0.1.3 127.0.0.3 80 200 304 0 344 433");
 
       //common log
-//      logString.append(host[num % host.length]).append(" ");
-//      logString.append(rfc931).append(" ");
-//      logString.append(username[num % username.length]).append(" ");
-//      logString.append("[" + datetime[num % datetime.length] + "]").append(" ");
-//      logString.append("\"" + request + "\"").append(" ");
-//      logString.append(statusCode[num % statusCode.length]).append(" ");
-//      logString.append(bytes[num % bytes.length]);
+      logString.append(host[num % host.length]).append(" ");
+      logString.append(rfc931).append(" ");
+      logString.append(username[num % username.length]).append(" ");
+      logString.append("[" + datetime[num % datetime.length] + "]").append(" ");
+      logString.append("\"" + request + "\"").append(" ");
+      logString.append(statusCode[num % statusCode.length]).append(" ");
+      logString.append(bytes[num % bytes.length]);
     } catch (Exception e) {
       return null;
     }
@@ -69,8 +69,8 @@ public class LogGenerator extends BaseOperator implements InputOperator
   public void emitTuples()
   {
     if (count++ < numTuples) {
-      out.emit(getNext().getBytes());
-      //out.emit(getNext(rand.nextInt(numTuples) + 1).getBytes());
+//      out.emit(getNext().getBytes());
+      out.emit(getNext(rand.nextInt(numTuples) + 1).getBytes());
     } else {
       try {
         Thread.sleep(sleepTime);

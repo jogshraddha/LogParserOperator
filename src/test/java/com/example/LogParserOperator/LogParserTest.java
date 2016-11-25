@@ -41,7 +41,9 @@ import org.junit.Test;
 import org.junit.rules.TestWatcher;
 import org.junit.runner.Description;
 
+import defaultlogs.pojo.CombinedLog;
 import defaultlogs.pojo.CommonLog;
+import defaultlogs.pojo.ExtendedLog;
 
 public class LogParserTest
 {
@@ -65,7 +67,6 @@ public class LogParserTest
       logParser.err.setSink(error);
       logParser.parsedOutput.setSink(pojoPort);
       logParser.setLogFileFormat("common");
-      //logParser.log = DefaultLogs.logTypes.get("common");
       logParser.setup(null);
     }
 
@@ -81,8 +82,10 @@ public class LogParserTest
   }
 
   @Test
-  public void TestValidInputCase() throws JSONException
+  public void TestValidCommonLogInputCase() throws JSONException
   {
+    logParser.setLogFileFormat("common");
+    logParser.setupLog();
     logParser.beginWindow(0);
     String log = "125.125.125.125 - dsmith [10/Oct/1999:21:15:05 +0500] \"GET /index.html HTTP/1.0\" 200 1043";
     logParser.in.process(log.getBytes());
@@ -104,9 +107,11 @@ public class LogParserTest
   }
 
   @Test
-  public void TestEmptyInput()
+  public void TestInvalidCommonLogInput()
   {
-    String tuple = "";
+    logParser.setLogFileFormat("common");
+    logParser.setupLog();
+    String tuple = "127.0.0.1 - dsmith 10/Oct/1999:21:15:05] \"GET /index.html HTTP/1.0\" 200 1043";
     logParser.beginWindow(0);
     logParser.in.process(tuple.getBytes());
     logParser.endWindow();
@@ -114,11 +119,81 @@ public class LogParserTest
     Assert.assertEquals(1, error.collectedTuples.size());
   }
 
+  @Test
+  public void TestValidCombinedLogInputCase() throws JSONException
+  {
+    logParser.setLogFileFormat("combined");
+    logParser.setupLog();
+    logParser.beginWindow(0);
+    String log = "125.125.125.125 - dsmith [10/Oct/1999:21:15:05 +0500] \"GET /index.html HTTP/1.0\" 200 1043 \"http://www.ibm.com/\" \"Mozilla/4.05 [en] (WinNT; I)\" \"USERID=CustomerA;IMPID=01234\"";
+    logParser.in.process(log.getBytes());
+    logParser.endWindow();
+    Assert.assertEquals(1, pojoPort.collectedTuples.size());
+    Assert.assertEquals(0, error.collectedTuples.size());
+    Object obj = pojoPort.collectedTuples.get(0);
+    Assert.assertNotNull(obj);
+    Assert.assertEquals(CombinedLog.class, obj.getClass());
+    CombinedLog pojo = (CombinedLog)obj;
+    Assert.assertNotNull(obj);
+    Assert.assertEquals("125.125.125.125", pojo.getHost());
+    Assert.assertEquals("dsmith", pojo.getUserName());
+    Assert.assertEquals("10/Oct/1999:21:15:05 +0500", pojo.getDatetime());
+    Assert.assertEquals("GET /index.html HTTP/1.0", pojo.getRequest());
+    Assert.assertEquals("200", pojo.getStatusCode());
+    Assert.assertEquals("1043", pojo.getBytes());
+    Assert.assertEquals("http://www.ibm.com/", pojo.getReferrer());
+    Assert.assertEquals("Mozilla/4.05 [en] (WinNT; I)", pojo.getUser_agent());
+    Assert.assertEquals("USERID=CustomerA;IMPID=01234", pojo.getCookie());
+    System.out.printf("its actually done");
+  }
 
   @Test
-  public void TestInvalidInput()
+  public void TestInvalidCombinedLogInput()
   {
-    String tuple = "127.0.0.1 - dsmith 10/Oct/1999:21:15:05] \"GET /index.html HTTP/1.0\" 200 1043";
+    logParser.setLogFileFormat("combined");
+    logParser.setupLog();
+    String tuple = "127.0.0.1 - dsmith 10/Oct/1999:21:15:05] GET /index.html HTTP/1.0\" 200 1043 \"http://www.ibm.com/\" \"Mozilla/4.05 [en] (WinNT; I)\" \"USERID=CustomerA;IMPID=01234\"";
+    logParser.beginWindow(0);
+    logParser.in.process(tuple.getBytes());
+    logParser.endWindow();
+    Assert.assertEquals(0, pojoPort.collectedTuples.size());
+    Assert.assertEquals(1, error.collectedTuples.size());
+  }
+
+  @Test
+  public void TestValidExtendedLogInputCase() throws JSONException
+  {
+    logParser.setLogFileFormat("extended");
+    logParser.setExtendedFieldsSeq("date time c-ip s-ip s-port sc-status sc-substatus sc-win32-status sc-bytes cs-bytes");
+    logParser.setupLog();
+    logParser.beginWindow(0);
+    String log = "2014-06-03 05:14 10.0.1.3 127.0.0.3 80 200 304 0 344 433";
+    logParser.in.process(log.getBytes());
+    logParser.endWindow();
+    Assert.assertEquals(1, pojoPort.collectedTuples.size());
+    Assert.assertEquals(0, error.collectedTuples.size());
+    Object obj = pojoPort.collectedTuples.get(0);
+    Assert.assertNotNull(obj);
+    Assert.assertEquals(ExtendedLog.class, obj.getClass());
+    ExtendedLog pojo = (ExtendedLog)obj;
+    Assert.assertNotNull(obj);
+    Assert.assertEquals("2014-06-03", pojo.getDate());
+    Assert.assertEquals("05:14", pojo.getTime());
+    Assert.assertEquals("10.0.1.3", pojo.getClientIP());
+    Assert.assertEquals("127.0.0.3", pojo.getServerIP());
+    Assert.assertEquals("200", pojo.getStatus());
+    Assert.assertEquals("304", pojo.getSubStatus());
+    Assert.assertEquals("0", pojo.getWin32Status());
+    Assert.assertEquals("344", pojo.getBytesSent());
+    Assert.assertEquals("433", pojo.getBytesReceived());
+    System.out.printf("its actually done");
+  }
+
+
+  @Test
+  public void TestEmptyInput()
+  {
+    String tuple = "";
     logParser.beginWindow(0);
     logParser.in.process(tuple.getBytes());
     logParser.endWindow();

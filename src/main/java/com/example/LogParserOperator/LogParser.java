@@ -91,7 +91,6 @@ public class LogParser extends Parser<byte[], KeyValPair<String, String>>
   public void setup(Context.OperatorContext context)
   {
     objMapper = new ObjectMapper();
-    logger.info("Received logFileFormat as {} ", logFileFormat);
     setupLog();
   }
 
