@@ -19,11 +19,10 @@
 package com.example.LogParserOperator;
 
 import java.io.IOException;
-import java.util.regex.Matcher;
-import java.util.regex.Pattern;
+
+import javax.validation.constraints.NotNull;
 
 import org.codehaus.jettison.json.JSONException;
-import org.codehaus.jettison.json.JSONObject;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -34,6 +33,28 @@ import com.datatorrent.lib.parser.Parser;
 import com.datatorrent.lib.util.KeyValPair;
 import com.datatorrent.netlet.util.DTThrowable;
 
+/**
+ * Operator that parses a log string tuple against the
+ * default log formats or a specified json schema and emits POJO on a parsed port and tuples that could not be
+ * parsed on error port.<br>
+ * <b>Properties</b><br>
+ * <b>jsonSchema</b>:schema as a string<br>
+ * <b>clazz</b>:Pojo class in case of user specified schema<br>
+ * <b>Ports</b> <br>
+ * <b>in</b>:input tuple as a String. Each tuple represents a log<br>
+ * <b>parsedOutput</b>:tuples that are validated against the default or user specified schema are emitted
+ * as POJO on this port<br>
+ * <b>err</b>:tuples that do not confine to log format are emitted on this port as
+ * KeyValPair<String,String><br>
+ * Key being the tuple and Val being the reason.
+ *
+ *
+ * @displayName LogParser
+ * @category Parsers
+ * @tags log pojo parser
+ * @since 3.6.0
+ */
+
 import defaultlogs.pojo.*;
 
 public class LogParser extends Parser<byte[], KeyValPair<String, String>>
@@ -42,6 +63,7 @@ public class LogParser extends Parser<byte[], KeyValPair<String, String>>
 
   private String extendedFieldsSeq;
 
+  @NotNull
   private String logFileFormat;
 
   private LogSchemaDetails logSchemaDetails;

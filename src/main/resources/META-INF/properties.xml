@@ -28,7 +28,7 @@
       "regex": "([w. -]+)"
       }, {
       "field": "userName",
-      "regex": "([w. -]+)"
+      "regex": "(.*?)"
       }, {
       "field": "datetime",
       "regex": "\\[(.*?)\\]"
@@ -50,7 +50,7 @@
   </property>
   <property>
     <name>dt.application.LogParser.operator.parser.prop.extendedFieldsSeq</name>
-    <value>date time c-ip s-ip s-port sc-status sc-substatus sc-win32-status sc-bytes cs-bytes</value>
+    <value>date time c-ip s-ip s-port sc-status sc-substatus sc-win32-status sc-bytes cs-bytes cs(Referrer)</value>
   </property>
   <property>
     <name>dt.application.LogParser.operator.LogGenerator.prop.sleepTime

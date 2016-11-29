@@ -55,12 +55,12 @@ public class ExtendedLog implements Log
   private static Map<String,String> fieldRegex = new HashMap<String,String>();
   static
   {
-    fieldRegex.put("date", "(\\d{4}-\\d{2}-\\d{2})");
-    fieldRegex.put("time", "(\\d{1,2}:\\d{1,2})");
+    fieldRegex.put("date", "(\\d{4}-(?:0[1-9]|1[0-2])-(?:0[1-9]|[1-2]\\d|3[0-1]))");
+    fieldRegex.put("time", "((?:[0-1]\\d|2[0-3]):[0-5]\\d:[0-5]\\d)");
     fieldRegex.put("c-ip", "([0-9.]+)");
     fieldRegex.put("cs-username", "([w. -]+)");
-    fieldRegex.put("s-sitename", "");
-    fieldRegex.put("s-computername", "");
+    fieldRegex.put("s-sitename", "(^[a-z0-9_-]{3,16}$)");
+    fieldRegex.put("s-computername", "(^[a-z0-9_-]{3,16}$)");
     fieldRegex.put("s-ip", "([0-9.]+)");
     fieldRegex.put("s-port", "(\\d{2,4})");
     fieldRegex.put("cs-method", "");
@@ -70,12 +70,12 @@ public class ExtendedLog implements Log
     fieldRegex.put("sc-win32-status", "(\\d+|-)");
     fieldRegex.put("sc-bytes", "(\\d+|-)");
     fieldRegex.put("cs-bytes", "(\\d+|-)");
-    fieldRegex.put("time-taken", "");
+    fieldRegex.put("time-taken", "(\\s*(\\d*)\\s*ms)");
     fieldRegex.put("cs-version", "");
     fieldRegex.put("cs-host", "");
-    fieldRegex.put("cs(User-Agent)", "\"(.*?)\"");
-    fieldRegex.put("cs(Cookie)", "");
-    fieldRegex.put("cs(Referrer)", "\"((?:[^\"]|\")+)\"");
+    fieldRegex.put("cs(User-Agent)", "(\"(.*?)\")");
+    fieldRegex.put("cs(Cookie)", "(\\w+=.+)");
+    fieldRegex.put("cs(Referrer)", "((http|https?:\\/\\/)?([\\da-z\\.-]+)\\.([a-z\\.]{2,6})([\\/\\w \\.-]*)*\\/?$)");
     fieldRegex.put("sc-substatus", "(\\d+|-)");
   }
 
@@ -142,7 +142,7 @@ public class ExtendedLog implements Log
       for (String fieldName: this.fieldSequence){
         String field = org.apache.commons.lang.StringUtils.capitalize(fieldNames.get(fieldName));
         String methodName = "set" + field;
-        Method method = cls.getMethod(methodName, String.class);;
+        Method method = cls.getMethod(methodName, String.class);
         method.invoke(this, m.group(i));
         i++;
       }

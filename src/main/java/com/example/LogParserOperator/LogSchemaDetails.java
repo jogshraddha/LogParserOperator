@@ -29,6 +29,28 @@ import java.util.List;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
+/**
+ * <p>
+ * This is schema that defines fields and their regex
+ * The operators use this information to validate the incoming tuples.
+ * Information from JSON schema is saved in this object and is used by the
+ * operators
+ * <p>
+ * <br>
+ * <br>
+ * Example schema <br>
+ * <br>
+ * {@code{ "fields": [{"field": "host","regex": "^([0-9.]+)"},
+ * {"field": "rfc931","regex": "([w. -]+)"},
+ * {"field": "userName","regex": "(.*?)"},
+ * {"field": "datetime","regex": "\\[(.*?)\\]"},
+ * {"field": "request","regex": "\"((?:[^\"]|\")+)\""},
+ * {"field": "statusCode","regex": "(\\d{3})"},
+ * {"field": "bytes","regex": "(\\d+|-)"}]}
+ *
+ * @since 3.6.0
+ */
+
 public class LogSchemaDetails {
 
     /**

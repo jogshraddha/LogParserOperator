@@ -28,19 +28,6 @@ import org.junit.runner.Description;
 
 import com.datatorrent.lib.appdata.schemas.SchemaUtils;
 import com.datatorrent.lib.testbench.CollectorTestSink;
-
-import com.datatorrent.lib.appdata.schemas.SchemaUtils;
-import com.datatorrent.lib.testbench.CollectorTestSink;
-
-import org.codehaus.jettison.json.JSONException;
-import org.codehaus.jettison.json.JSONObject;
-import org.jooq.exception.IOException;
-import org.junit.Assert;
-import org.junit.Rule;
-import org.junit.Test;
-import org.junit.rules.TestWatcher;
-import org.junit.runner.Description;
-
 import defaultlogs.pojo.CombinedLog;
 import defaultlogs.pojo.CommonLog;
 import defaultlogs.pojo.ExtendedLog;
@@ -103,7 +90,6 @@ public class LogParserTest
     Assert.assertEquals("GET /index.html HTTP/1.0", pojo.getRequest());
     Assert.assertEquals("200", pojo.getStatusCode());
     Assert.assertEquals("1043", pojo.getBytes());
-    System.out.printf("its actually done");
   }
 
   @Test
@@ -144,7 +130,6 @@ public class LogParserTest
     Assert.assertEquals("http://www.ibm.com/", pojo.getReferrer());
     Assert.assertEquals("Mozilla/4.05 [en] (WinNT; I)", pojo.getUser_agent());
     Assert.assertEquals("USERID=CustomerA;IMPID=01234", pojo.getCookie());
-    System.out.printf("its actually done");
   }
 
   @Test
@@ -164,10 +149,10 @@ public class LogParserTest
   public void TestValidExtendedLogInputCase() throws JSONException
   {
     logParser.setLogFileFormat("extended");
-    logParser.setExtendedFieldsSeq("date time c-ip s-ip s-port sc-status sc-substatus sc-win32-status sc-bytes cs-bytes");
+    logParser.setExtendedFieldsSeq("date time c-ip s-ip s-port sc-status sc-substatus sc-win32-status sc-bytes cs-bytes cs(Referrer)");
     logParser.setupLog();
     logParser.beginWindow(0);
-    String log = "2014-06-03 05:14 10.0.1.3 127.0.0.3 80 200 304 0 344 433";
+    String log = "2014-06-03 05:14:00 10.0.1.3 127.0.0.3 80 200 304 0 344 433 https://abb.pqr.com";
     logParser.in.process(log.getBytes());
     logParser.endWindow();
     Assert.assertEquals(1, pojoPort.collectedTuples.size());
@@ -178,7 +163,7 @@ public class LogParserTest
     ExtendedLog pojo = (ExtendedLog)obj;
     Assert.assertNotNull(obj);
     Assert.assertEquals("2014-06-03", pojo.getDate());
-    Assert.assertEquals("05:14", pojo.getTime());
+    Assert.assertEquals("05:14:00", pojo.getTime());
     Assert.assertEquals("10.0.1.3", pojo.getClientIP());
     Assert.assertEquals("127.0.0.3", pojo.getServerIP());
     Assert.assertEquals("200", pojo.getStatus());
@@ -186,7 +171,7 @@ public class LogParserTest
     Assert.assertEquals("0", pojo.getWin32Status());
     Assert.assertEquals("344", pojo.getBytesSent());
     Assert.assertEquals("433", pojo.getBytesReceived());
-    System.out.printf("its actually done");
+    Assert.assertEquals("https://abb.pqr.com", pojo.getReferrer());
   }
 
 

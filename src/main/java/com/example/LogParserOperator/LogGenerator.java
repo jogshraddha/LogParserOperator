@@ -48,16 +48,16 @@ public class LogGenerator extends BaseOperator implements InputOperator
     StringBuilder logString  = new StringBuilder();
     try {
       //Extended log
-//      logString.append("2014-06-03 05:14 10.0.1.3 127.0.0.3 80 200 304 0 344 433");
+      logString.append("2014-06-03 05:14:00 10.0.1.3 127.0.0.3 80 200 304 0 344 433 http://abc.prw.com");
 
       //common log
-      logString.append(host[num % host.length]).append(" ");
-      logString.append(rfc931).append(" ");
-      logString.append(username[num % username.length]).append(" ");
-      logString.append("[" + datetime[num % datetime.length] + "]").append(" ");
-      logString.append("\"" + request + "\"").append(" ");
-      logString.append(statusCode[num % statusCode.length]).append(" ");
-      logString.append(bytes[num % bytes.length]);
+//      logString.append(host[num % host.length]).append(" ");
+//      logString.append(rfc931).append(" ");
+//      logString.append(username[num % username.length]).append(" ");
+//      logString.append("[" + datetime[num % datetime.length] + "]").append(" ");
+//      logString.append("\"" + request + "\"").append(" ");
+//      logString.append(statusCode[num % statusCode.length]).append(" ");
+//      logString.append(bytes[num % bytes.length]);
     } catch (Exception e) {
       return null;
     }
